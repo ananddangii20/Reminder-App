@@ -1,0 +1,549 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>Remind Karo</title>
+<link rel="icon" href="data:;base64,iVBORw0KGgo=">
+<style>
+  :root{
+    --bg:#0f1113;
+    --panel:#151618;
+    --muted:#9aa0a6;
+    --accent:#6ee7b7;
+    --glass: rgba(255,255,255,0.03);
+    --danger:#ff6b6b;
+    --soft:#2a2d30;
+    --card-shadow: 0 6px 18px rgba(2,6,8,0.6);
+    font-family: Inter, ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial;
+  }
+
+  html,body{height:100%;margin:0;background:rgb(212, 212, 212);color:#e9eef1;}
+  .app {
+    max-width:980px;
+    margin:36px auto;
+    padding:28px;
+  }
+
+  header{
+    display:flex;
+    align-items:center;
+    gap:16px;
+    margin-bottom:20px;
+    justify-content: center;
+  }
+  .logo {
+    font-size: 60px;
+    width:70px;height:86px;border-radius:12px;
+    display:grid;place-items:center;
+    color:#052023;font-weight:800;font-size:18px;
+    margin-bottom: 19px;
+
+  }
+  h1{font-size:20px;margin:0}
+  .sub {color:var(--muted); font-size:13px;margin-top:4px}
+
+  .container{
+    display:grid;grid-template-columns: 360px 1fr; gap:20px;
+  }
+
+  /* LEFT PANE */
+  .left {
+    background:linear-gradient(180deg,var(--bg), #070808); border-radius: 10px;padding:18px; box-shadow:var(--card-shadow);
+  }
+
+  .new-card{
+    background:linear-gradient(180deg,var(--bg), #070808);
+    border-radius:10px;padding:12px;
+  }
+
+  input[type="text"], input[type="date"], input[type="time"], select {
+    width:80%; padding:10px 12px; margin-top:8px;
+    background:var(--glass); border:1px solid rgba(255,255,255,0.03);
+    color: #eaf6f0; border-radius:8px; outline:none; font-size:14px;
+  }
+  .row{display:flex;gap:8px}
+  .small{flex:1}
+  .btn {
+    display:inline-flex;align-items:center;gap:8px;padding:10px 12px;border-radius:10px;
+    background:transparent;border:1px solid rgba(255,255,255,0.04);cursor:pointer;color:var(--muted);
+  }
+  .btn.primary{
+    background:rgb(187, 187, 187);
+    color:#03251f;border:none;font-weight:600;box-shadow: 0 6px 18px rgba(16,185,129,0.08);
+  }
+  .btn.ghost { background:transparent; color:var(--muted) }
+  .hint{font-size:12px;color:var(--muted);margin-top:8px}
+
+  /* RIGHT PANE */
+  .right {
+    background:linear-gradient(180deg,var(--bg), #070808);
+    border-radius:14px;padding:18px; box-shadow:var(--card-shadow);
+    min-height:360px;
+  }
+  .section-title{display:flex;justify-content:space-between;align-items:center;margin-bottom:12px}
+  .list {display:grid;gap:12px}
+
+  .card {
+    background:linear-gradient(180deg, rgba(0,0,0,0.25), rgba(255,255,255,0.02));
+    padding:12px;border-radius:10px;display:flex;justify-content:space-between;align-items:center;border:1px solid rgba(255,255,255,0.02);
+  }
+  .meta{color:var(--muted);font-size:13px}
+  .title{font-weight:600}
+  .chip{background:var(--soft);padding:6px 8px;border-radius:8px;font-size:13px;color:var(--muted)}
+
+  .controls{display:flex;gap:8px;align-items:center}
+  .icon-btn{background:transparent;border:1px solid rgba(255,255,255,0.03);padding:8px;border-radius:8px;cursor:pointer;color:var(--muted)}
+  .done {background:transparent;border:1px solid rgba(255,255,255,0.03);padding:8px;border-radius:8px;cursor:pointer;color:#9ee7d2}
+
+  /* Empty state */
+  .empty-state{display:grid;place-items:center;padding:28px;border-radius:10px;background:linear-gradient(180deg, rgba(255,255,255,0.01), rgba(255,255,255,0.007));border:1px dashed rgba(255,255,255,0.02)}
+  .empty-state h3{margin:6px 0;color:var(--muted)}
+
+  /* Modal */
+  .overlay{position:fixed;inset:0;background:rgba(3,6,8,0.6);display:none;align-items:center;justify-content:center;z-index:60}
+  .modal{background:linear-gradient(180deg,#0d1113,#071011);padding:20px;border-radius:12px;min-width:320px;max-width:520px;color:#e8f5ee;box-shadow:0 18px 40px rgba(0,0,0,0.7)}
+  .modal h2{margin:0 0 8px 0}
+  .modal p{color:var(--muted);margin:0 0 12px 0}
+
+  .mini {font-size:13px;color:var(--muted)}
+  footer {margin-top:18px;color:var(--muted);font-size:13px;text-align:center}
+
+  /* responsive */
+  @media (max-width:880px){
+    .container{grid-template-columns:1fr; }
+    .left{order:2}
+    .right{order:1;margin-bottom:12px}
+  }
+</style>
+</head>
+<body>
+
+    <script>
+  // SIMPLE LOCAL LOGIN before loading app
+  const authKey = "rk_user_logged_in";
+
+  // if not logged in, show prompt before app appears
+  if(!localStorage.getItem(authKey)){
+    const name = prompt("Enter your name to continue:");
+
+    if(name && name.trim() !== ""){
+      localStorage.setItem(authKey, "1"); // mark logged in
+      alert("Welcome " + name.trim());
+    } else {
+      alert("Login required. Reloading...");
+      location.reload();
+    }
+  }
+</script>
+ 
+<div class="app">
+  <header>
+    <div class="logo" style="font-size: 60px;">🔔</div>
+    <div>
+      <h1 style="color: black; font-size: 40px;">Remind Karoo</h1>
+      <div class="sub" style=" font-size: 20px; color: rgb(41, 41, 41);">Create & manage scheduled reminders!</div>
+    </div>
+  </header>
+
+  <div class="container">
+    <!-- LEFT: create new reminder -->
+    <div class="left">
+      <div class="new-card">
+        <label for="title">Reminder title</label>
+        <input id="title" type="text" placeholder="Eg. Anand's Birthday" />
+
+        <div style="height:10px"></div>
+
+        <div class="row">
+          <div class="small">
+            <label for="date">Date</label>
+            <input id="date" type="date" />
+          </div>
+          <div style="width:10px"></div>
+          <div style="width:120px">
+            <label for="time">Time</label>
+            <input id="time" type="time" />
+          </div>
+        </div>
+
+        <div style="height:10px"></div>
+        <label for="note">Note</label>
+        <input id="note" type="text" placeholder="Add a short note..." />
+
+        <div style="height:12px"></div>
+        <div style="display:flex;gap:8px">
+          <button class="btn primary" id="addBtn">+ Add Reminder</button>
+          <button class="btn ghost" id="clearBtn" style="background-color: rgb(165, 1, 1); color: white;">Clear</button>
+        </div>
+
+        <div class="hint">Tip: The app will ask for permission to send system notifications the first time you create a reminder.</div>
+      </div>
+
+      <div style="height:18px"></div>
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px">
+        <div style="font-weight:700">Upcoming</div>
+        <div class="mini" id="count" style="color: rgb(159, 0, 0); ">0</div>
+      </div>
+
+      <div style="display:grid;gap:8px">
+        <button class="btn" id="clearAll">Clear All</button>
+        <div class="hint"></div>
+      </div>
+
+    </div>
+
+    <!-- RIGHT: list and details -->
+    <div class="right">
+      <div class="section-title">
+        <div>
+          <div style="font-weight:700">Your reminders</div>
+          <div class="mini">Active & scheduled reminders</div>
+        </div>
+        <div class="mini" id="nowClock"></div>
+      </div>
+
+      <div id="listWrap">
+        <div class="empty-state" id="emptyState">
+          <div style="font-size:36px">🔔</div>
+          <h3>No reminders yet</h3>
+          <div class="mini">Create a reminder! </div>
+        </div>
+
+        <div class="list" id="reminderList" style="display:none"></div>
+      </div>
+
+      
+    </div>
+  </div>
+</div>
+
+<!-- Notification modal -->
+<div id="notifyOverlay" class="overlay" aria-hidden="true">
+  <div class="modal" role="dialog" aria-modal="true">
+    <h2 id="notifyTitle">Reminder</h2>
+    <p id="notifyText">Kaam Karoo Apnaa!!</p>
+    <div style="display:flex;gap:8px;margin-top:12px;justify-content:flex-end">
+      <button class="btn" id="dismissNotify">Dismiss Karoo </button>
+      <button class="btn primary" id="snoozeBtn">Snooze Karoo 5m</button>
+    </div>
+  </div>
+</div>
+
+<audio id="ringtone" src="/alarm.mp3" preload="auto"></audio>
+
+
+<script>
+/*
+  Remind Kar - single file
+  - Persistence: localStorage (key: rk_reminders_v1)
+  - Checks every second for due reminders
+  - Asks Notification permission only on first created reminder
+*/
+
+const storageKey = 'rk_reminders_v1';
+let reminders = [];
+let permissionAsked = false;
+let currentNotifyId = null;
+
+const $ = id => document.getElementById(id);
+const titleInput = $('title');
+const dateInput = $('date');
+const timeInput = $('time');
+const noteInput = $('note');
+const addBtn = $('addBtn');
+const clearBtn = $('clearBtn');
+const clearAllBtn = $('clearAll');
+const listEl = $('reminderList');
+const emptyState = $('emptyState');
+const countEl = $('count');
+const nowClock = $('nowClock');
+
+const notifyOverlay = $('notifyOverlay');
+const notifyTitle = $('notifyTitle');
+const notifyText = $('notifyText');
+const dismissNotify = $('dismissNotify');
+const snoozeBtn = $('snoozeBtn');
+
+function loadReminders(){
+  try {
+    const raw = localStorage.getItem(storageKey);
+    reminders = raw ? JSON.parse(raw) : [];
+  } catch(e) {
+    console.error('load error', e);
+    reminders = [];
+  }
+}
+function saveReminders(){
+  localStorage.setItem(storageKey, JSON.stringify(reminders));
+}
+function formatDT(ts){
+  const d = new Date(ts);
+  if (isNaN(d)) return '-';
+  const date = d.toLocaleDateString();
+  const time = d.toLocaleTimeString([], {hour:'2-digit',minute:'2-digit'});
+  return `${date} • ${time}`;
+}
+function isDue(r){ return !r.done && Date.now() >= r.time; }
+
+function renderList(){
+  listEl.innerHTML = '';
+  const active = reminders.filter(r => !r.archived).sort((a,b)=> a.time - b.time);
+  countEl.textContent = active.length;
+  if(active.length===0){
+    emptyState.style.display = 'grid';
+    listEl.style.display = 'none';
+    return;
+  }
+  emptyState.style.display = 'none';
+  listEl.style.display = 'grid';
+  active.forEach(r => {
+    const card = document.createElement('div');
+    card.className = 'card';
+    const left = document.createElement('div');
+    left.style.maxWidth = '70%';
+    const t = document.createElement('div'); t.className='title'; t.textContent = r.title || '(no title)';
+    const m = document.createElement('div'); m.className='meta'; m.textContent = `${formatDT(r.time)} ${r.note ? ' • ' + r.note : ''}`;
+    left.appendChild(t); left.appendChild(m);
+
+    const right = document.createElement('div'); right.className = 'controls';
+    const chip = document.createElement('div'); chip.className='chip'; chip.textContent = r.done ? 'Done' : (isDue(r) ? 'Late' : timeDiffLabel(r.time));
+    right.appendChild(chip);
+
+    const doneBtn = document.createElement('button'); doneBtn.className='icon-btn done'; doneBtn.title='Mark done';
+    doneBtn.innerHTML = '✔';
+    doneBtn.onclick = ()=> { r.done = !r.done; saveReminders(); renderList(); };
+
+    const editBtn = document.createElement('button'); editBtn.className='icon-btn'; editBtn.title='Edit';
+    editBtn.innerHTML = 'Edit ✎';
+    editBtn.onclick = ()=> { openEditForm(r.id); };
+
+    const delBtn = document.createElement('button'); delBtn.className='icon-btn'; delBtn.title='Delete';
+    delBtn.innerHTML = '🗑 Delete';
+    delBtn.onclick = ()=> { if(confirm('Delete this reminder?')) { reminders = reminders.filter(x=>x.id!==r.id); saveReminders(); renderList(); }};
+
+    right.appendChild(doneBtn);
+    right.appendChild(editBtn);
+    right.appendChild(delBtn);
+
+    card.appendChild(left);
+    card.appendChild(right);
+    listEl.appendChild(card);
+  });
+}
+
+function timeDiffLabel(ts){
+  const diff = ts - Date.now();
+  if(diff <= 0) return 'Now';
+  const s = Math.floor(diff/1000), m=Math.floor(s/60), h=Math.floor(m/60), d=Math.floor(h/24);
+  if(d>0) return `${d}d ${h%24}h`;
+  if(h>0) return `${h}h ${m%60}m`;
+  if(m>0) return `${m}m`;
+  return `${s}s`;
+}
+
+function nextId(){ return 'rk_' + Math.random().toString(36).slice(2,9); }
+
+function validateInputs(){
+  const t = titleInput.value.trim();
+  const dateVal = dateInput.value;
+  const timeVal = timeInput.value;
+  if(!t) { alert('Please enter a title'); return false; }
+  if(!dateVal || !timeVal){ alert('Please select date and time'); return false; }
+  const dt = new Date(dateVal + 'T' + timeVal);
+  if(isNaN(dt.getTime())){ alert('Invalid date/time'); return false; }
+  if(dt.getTime() < Date.now() - 1000){ alert('Please pick a future time'); return false; }
+  return true;
+}
+
+// When user clicks add for the first time, request permission (only once)
+function maybeAskPermission(){
+  if(permissionAsked) return;
+  permissionAsked = true;
+  if(!('Notification' in window)) return;
+  // Ask permission in a friendly non-blocking way
+  Notification.requestPermission().then(result => {
+    // possible: 'granted', 'denied', 'default'
+    console.log('notification permission:', result);
+  }).catch(e => console.warn('notif perm error', e));
+}
+
+function addReminder(){
+  if(!validateInputs()) return;
+  // Ask permission only when first reminder is created
+  if(reminders.length === 0 && 'Notification' in window){
+    maybeAskPermission();
+  }
+  const dt = new Date(dateInput.value + 'T' + timeInput.value);
+  const r = {
+    id: nextId(),
+    title: titleInput.value.trim(),
+    note: noteInput.value.trim(),
+    time: dt.getTime(),
+    done: false,
+    archived: false,
+    created: Date.now()
+  };
+  reminders.push(r);
+  saveReminders();
+  renderList();
+  resetForm();
+}
+
+function resetForm(){
+  titleInput.value=''; noteInput.value=''; dateInput.value=''; timeInput.value='';
+}
+
+function openEditForm(id){
+  const r = reminders.find(x=>x.id===id);
+  if(!r) return;
+  // simple edit: reuse left panel fields
+  titleInput.value = r.title;
+  noteInput.value = r.note;
+  const dt = new Date(r.time);
+  dateInput.value = dt.toISOString().slice(0,10);
+  timeInput.value = dt.toTimeString().slice(0,5);
+  // remove existing reminder (editing will re-add)
+  reminders = reminders.filter(x=>x.id!==id);
+  saveReminders();
+  renderList();
+  window.scrollTo({top:0,behavior:'smooth'});
+}
+
+function checkDue(){
+  const now = Date.now();
+  // find reminders that are due and not yet handled
+  reminders.forEach(r=>{
+    if(!r._notified && !r.done && now >= r.time){
+      r._notified = true; // mark temporarily to avoid spamming
+      // show in-app modal and system notification if permission granted
+      showPopupFor(r);
+      if('Notification' in window && Notification.permission === 'granted'){
+        try {
+          const notif = new Notification(r.title || 'Reminder', {
+            body: r.note || formatDT(r.time),
+            tag: r.id,
+            silent: true
+          });
+          notif.onclick = () => { window.focus(); }
+        } catch(e){ console.warn('notification error', e) }
+      }
+    }
+  });
+  // cleanup: move old done reminders to archived after some time (optional)
+  saveReminders();
+  renderList();
+}
+
+function showPopupFor(r){
+
+    const ring = document.getElementById('ringtone');
+ring.currentTime = 0;   // start from beginning
+ring.play().catch(()=>{}); // play sound, ignore errors
+
+  currentNotifyId = r.id;
+  notifyTitle.textContent = r.title || 'Reminder';
+  notifyText.textContent = (r.note || '') + ' — ' + formatDT(r.time);
+  notifyOverlay.style.display = 'flex';
+  notifyOverlay.setAttribute('aria-hidden','false');
+
+}
+
+dismissNotify.onclick = ()=>{
+  const ring = document.getElementById('ringtone'); // <--- get the audio element
+  if(currentNotifyId){
+    const r = reminders.find(x=>x.id===currentNotifyId);
+    if(r) { r.done = true; r.archived = true; }
+    currentNotifyId = null;
+
+    ring.pause();       // stop sound
+    ring.currentTime = 0;
+  }
+  notifyOverlay.style.display = 'none';
+  notifyOverlay.setAttribute('aria-hidden','true');
+  saveReminders();
+  renderList();
+};
+
+
+snoozeBtn.onclick = ()=>{
+  if(currentNotifyId){
+    const r = reminders.find(x=>x.id===currentNotifyId);
+    if(r){
+      r.time = Date.now() + 5*60*1000; // snooze 5 min
+      r._notified = false;
+    }
+  }
+  notifyOverlay.style.display = 'none';
+  notifyOverlay.setAttribute('aria-hidden','true');
+  saveReminders();
+  renderList();
+};
+
+addBtn.addEventListener('click', ()=>{
+  // If this is the first ever created (no permission asked), ask permission before adding
+  if(!permissionAsked && 'Notification' in window){
+    // we ask only when first reminder is created, as requested
+    maybeAskPermission();
+    // continue adding regardless of outcome
+  }
+  addReminder();
+});
+
+clearBtn.addEventListener('click', resetForm);
+
+clearAllBtn.addEventListener('click', ()=>{
+  if(!confirm('Clear all reminders?')) return;
+  reminders = [];
+  saveReminders();
+  renderList();
+});
+
+function tickClock(){
+  nowClock.textContent = new Date().toLocaleString([], {hour:'2-digit',minute:'2-digit',second:'2-digit'});
+  renderList(); // update dynamic labels
+}
+
+// initial load
+loadReminders();
+renderList();
+
+// Start checking every 1s for due reminders
+setInterval(()=>{
+  checkDue();
+  tickClock();
+}, 1000);
+
+// small helper: if a reminder is in the past when loaded, mark notification flag false so it triggers
+function normalizeOnLoad(){
+  reminders.forEach(r=>{
+    if(!r._notified && Date.now() >= r.time && !r.done){
+      // let it notify immediately on load (if not previously notified)
+      r._notified = false;
+    }
+  });
+}
+normalizeOnLoad();
+
+// Accessibility: allow dismiss with ESC
+document.addEventListener('keydown', (e)=>{
+  if(e.key==='Escape' && notifyOverlay.style.display==='flex'){
+    dismissNotify.click();
+  }
+});
+
+// Save before unload
+window.addEventListener('beforeunload', ()=> saveReminders());
+
+/* Optional: prefill date/time with next nearest minute for convenience */
+(function prefill(){
+  const now = new Date();
+  now.setMinutes(now.getMinutes()+10);
+  const isoDate = now.toISOString().slice(0,10);
+  const hhmm = now.toTimeString().slice(0,5);
+  dateInput.value = isoDate;
+  timeInput.value = hhmm;
+})();
+</script>
+</body>
+</html>
