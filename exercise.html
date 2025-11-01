@@ -1,0 +1,425 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title> Exercise Reminder | Exercise Karoo</title>
+<link rel="icon" href="exercise.png">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🏋️‍♂️</text></svg>">
+
+<style>
+  body {
+    font-family: "Poppins", sans-serif;
+    background: rgb(212, 212, 212);
+   justify-self: center;
+align-self: center;
+    height: 100vh;
+    margin: 0;
+  }
+  .container {
+    background:linear-gradient(180deg,#0f1113, #070808);;
+    border-radius: 20px;
+    box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+    padding: 30px;
+    width: 350px;
+    text-align: center;
+    color: rgb(149, 149, 149);
+  }
+  h2 {
+    color: #ffffff;
+    margin-bottom: 5px;
+  }
+  p {
+    color: #cccccc;
+    font-size: 14px;
+    margin-bottom: 20px;
+  }
+  select, input {
+    width: 80%;
+    padding: 10px;
+    border-radius: 10px;
+    border: 1px solid #ccc;
+    outline: none;
+    margin-bottom: 10px;
+    text-align: center;
+  }
+  button {
+    background: #00810b;
+    color: #fff;
+    border: none;
+    padding: 10px 20px;
+    border-radius: 10px;
+    cursor: pointer;
+    margin: 5px;
+    transition: 0.3s;
+  }
+  button:hover {
+    background: #00327a;
+  }
+  #countdown {
+    font-weight: bold;
+    color: #004aad;
+    margin-top: 15px;
+  }
+  #exerciseList {
+    text-align: left;
+    font-size: 14px;
+    color: #ffffff;
+      justify-content: center;
+    margin-top: 15px;
+  }
+  #exerciseList li {
+    padding: 4px 0;
+     background-color: #252525;
+     border-radius: 15px;
+     border: 4px solid black;
+     padding-left: 18px;
+     padding-right: 18px;
+     width: max-content;
+  
+  }
+
+  #exerciseType{
+    margin-top: 10px;
+  }
+  #time{
+    margin-top: 10px;
+  }
+
+  header{
+    display:flex;
+    align-items:center;
+    gap:16px;
+    margin-bottom:20px;
+    justify-content: center;
+  }
+  .logo {
+    margin-top: 100px;
+    font-size: 60px;
+    width:70px;height:86px;border-radius:12px;
+    display:grid;place-items:center;
+    color:#052023;font-weight:800;font-size:18px;
+    margin-bottom: 19px;
+
+  }
+  h1{font-size:20px;margin:0;
+margin-top: 85px;}
+  .sub {color:var(--muted); font-size:13px;margin-top:4px}
+
+
+      .navbar {
+    position: fixed;
+    top: 15px;
+    left: 15px;
+    z-index: 10;
+  }
+
+
+  .sidebar {
+    position: fixed;
+    top: 0;
+    left: -200px;
+    width: 200px;
+    height: 100%;
+    background: linear-gradient(180deg,#0f1113, #070808);
+    color: #fff;
+    display: flex;
+    flex-direction: column;
+    padding-top: 60px;
+    transition: 0.4s;
+    z-index: 9;
+    border-top-right-radius: 20px;
+    border-bottom-right-radius: 20px;
+    box-shadow: 3px 0 10px rgba(0,0,0,0.3);
+     left: 0;
+  }
+
+ 
+
+  .sidebar a {
+    color: white;
+    padding: 15px 25px;
+    text-decoration: none;
+    font-size: 16px;
+    transition: 0.3s;
+  }
+
+  .sidebar a:hover {
+    background: rgba(255,255,255,0.2);
+  }
+
+
+  /* Page transition effect */
+body {
+  opacity: 0;
+  transition: opacity 0.3s ease;
+}
+
+/* When page finishes loading */
+body.fade-in {
+  opacity: 1;
+}
+
+header{
+    display:flex;
+    align-items:center;
+    gap:16px;
+    margin-bottom:20px;
+    justify-content: center;
+  }
+  .logo {
+    margin-top: 100px;
+    font-size: 60px;
+    width:70px;height:86px;border-radius:12px;
+    display:grid;place-items:center;
+    color:#052023;font-weight:800;font-size:18px;
+    margin-bottom: 19px;
+
+  }
+  h1{font-size:20px;margin:0;
+margin-top: 85px;}
+  .sub {color:var(--muted); font-size:13px;margin-top:4px}
+
+.sidebar a.active {
+  background: rgba(255, 255, 255, 0.25);
+  font-weight: bold;
+  border-left: 4px solid #ff0000;
+}
+
+/* Hamburger button styling */
+.hamburger {
+  display: none;
+  font-size: 28px;
+  background: black;
+  color: white;
+  padding: 8px 12px;
+  border-radius: 8px;
+  cursor: pointer;
+  box-shadow: 2px 2px 6px rgba(0,0,0,0.3);
+}
+
+/* Mobile view */
+@media (max-width: 768px) {
+  .hamburger {
+    display: block;
+  }
+
+  .sidebar {
+    left: -220px;
+  }
+
+  .sidebar.open {
+    left: 0;
+  }
+}
+
+
+</style>
+</head>
+<body>
+    
+
+  <div class="sidebar" id="sidebar">
+    <a href="index.html"> Home</a>
+    <a href="water.html">Water Reminder</a>
+    <a href="exercise.html">Exercise Reminder</a>
+  </div>
+
+  <div class="navbar">
+  <div class="hamburger" id="hamburger">☰</div>
+</div>
+
+   <header>
+    <div class="logo" style="font-size: 60px;">🏋️‍♂️</div>
+    <div>
+      <h1 style="color: black; font-size: 40px;">Exercise Karoo</h1>
+      <div class="sub" style=" font-size: 20px; color: rgb(41, 41, 41);">Get Reminders & Track your Exercise</div>
+    </div>
+  </header>
+
+  <div class="container">
+    <h2>🏋️‍♂️ Exercise Reminder</h2>
+    <p>Set a daily reminder to stay active and healthy!</p>
+
+    <label for="exerciseType"><b>Select Exercise Type</b></label><br>
+    <select id="exerciseType">
+      <option value="Yoga ">Yoga</option>
+      <option value="Running ">Running </option>
+      <option value="Push-ups ">Push-ups </option>
+      <option value="Plank ">Plank</option>
+      <option value="Cycling ">Cycling</option>
+      <option value="Stretching ">Stretching</option>
+    </select><br>
+
+    <label for="time"><b>Set Reminder Time</b></label><br>
+    <input type="time" id="time"><br>
+
+    <button id="setBtn">Set Reminder</button>
+    <button id="clearBtn" style="background:#ff4d4d;">Clear</button>
+
+    <div id="countdown"></div>
+
+    <h3 style="margin-top:20px;">🗓 Your Scheduled Exercises</h3>
+    <ul id="exerciseList"></ul>
+
+    <audio id="alertSound" src="alarm.mp3" preload="auto"></audio>
+  </div>
+
+
+  <div style="
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
+    display: flex;
+    gap: 15px;
+    background: rgba(255,255,255,0.1);
+    padding: 10px 15px;
+  
+  ">
+    <a href="https://www.instagram.com/_ananddangi_" target="_blank" 
+       style="text-decoration:none; color:#3c3c3c; font-size:12px;">Instagram</a>
+    <a href="https://www.linkedin.com/in/ananddangi" target="_blank" 
+       style="text-decoration:none; color:#3c3c3c; font-size:12px;">linkedin</a>
+    <a href="https://github.com/ananddangii20" target="_blank" 
+       style="text-decoration:none; color:#3c3c3c; font-size:12px;">Github</a>
+  </div>
+<script>
+const exerciseType = document.getElementById('exerciseType');
+const timeInput = document.getElementById('time');
+const setBtn = document.getElementById('setBtn');
+const clearBtn = document.getElementById('clearBtn');
+const countdownDisplay = document.getElementById('countdown');
+const exerciseList = document.getElementById('exerciseList');
+const alertSound = document.getElementById('alertSound');
+
+let reminders = JSON.parse(localStorage.getItem('exerciseReminders') || '[]');
+let countdownInterval;
+
+// Request notification permission
+if ('Notification' in window) Notification.requestPermission();
+
+// Render list
+function renderList() {
+  exerciseList.innerHTML = '';
+  if (reminders.length === 0) {
+    exerciseList.innerHTML = '<li>No reminders set yet.</li>';
+    return;
+  }
+  reminders.forEach(r => {
+    const li = document.createElement('li');
+    li.textContent = `${r.type} at ${r.time}`;
+    exerciseList.appendChild(li);
+  });
+}
+renderList();
+
+// Save reminders
+function saveReminders() {
+  localStorage.setItem('exerciseReminders', JSON.stringify(reminders));
+}
+
+// Set reminder
+setBtn.onclick = () => {
+  const type = exerciseType.value;
+  const time = timeInput.value;
+  if (!time) return alert("Please set a time for your exercise!");
+
+  const newReminder = { type, time };
+  reminders.push(newReminder);
+  saveReminders();
+  renderList();
+
+  const msTill = getMsUntilTime(time);
+  if (msTill <= 0) return alert("Time must be in the future!");
+
+  clearInterval(countdownInterval);
+  startCountdown(msTill, newReminder);
+  alert("✅ Reminder set successfully!");
+};
+
+// Clear all
+clearBtn.onclick = () => {
+  if (confirm("Clear all exercise reminders?")) {
+    reminders = [];
+    saveReminders();
+    renderList();
+    clearInterval(countdownInterval);
+    countdownDisplay.textContent = '';
+  }
+
+    alertSound.pause();
+  alertSound.currentTime = 0;
+};
+
+// Helper: milliseconds until selected time
+function getMsUntilTime(timeStr) {
+  const now = new Date();
+  const [h, m] = timeStr.split(':').map(Number);
+  const target = new Date();
+  target.setHours(h, m, 0, 0);
+  let diff = target - now;
+  if (diff < 0) diff += 24 * 60 * 60 * 1000; // next day
+  return diff;
+}
+
+// Countdown display
+function startCountdown(ms, reminder) {
+  let remaining = ms / 1000;
+  updateCountdown(remaining);
+  countdownInterval = setInterval(() => {
+    remaining--;
+    updateCountdown(remaining);
+    if (remaining <= 0) {
+      clearInterval(countdownInterval);
+      triggerReminder(reminder);
+    }
+  }, 1000);
+}
+
+function updateCountdown(sec) {
+  const h = Math.floor(sec / 3600);
+  const m = Math.floor((sec % 3600) / 60);
+  const s = Math.floor(sec % 60);
+  countdownDisplay.textContent = `Next exercise in: ${h}h ${m}m ${s}s`;
+}
+
+function triggerReminder(reminder) {
+  alertSound.play().catch(()=>{});
+  showNotification(`🏋️‍♂️ Time for ${reminder.type}!`, "Let's get moving!");
+}
+
+function showNotification(title, body) {
+  if ('Notification' in window && Notification.permission === 'granted') {
+    new Notification(title, { body, icon: 'exercise.png' });
+  } else {
+    alert(title + "\n" + body);
+  }
+}
+
+window.addEventListener("load", () => {
+    document.body.classList.add("fade-in");
+  });
+
+  //highlight 
+ const currentPage = window.location.pathname.split("/").pop();
+
+  document.querySelectorAll(".sidebar a").forEach(link => {
+    const linkPage = link.getAttribute("href");
+    if (linkPage === currentPage) {
+      link.classList.add("active");
+    } else {
+      link.classList.remove("active");
+    }
+  });
+
+
+  const hamburger = document.getElementById("hamburger");
+const sidebar = document.getElementById("sidebar");
+
+hamburger.addEventListener("click", () => {
+  sidebar.classList.toggle("open");
+});
+
+</script>
+</body>
+</html>

@@ -1,0 +1,399 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title> Water Reminder | Drink Karoo</title>
+<link rel="icon" href="water.png">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>💧</text></svg>">
+
+<style>
+  body {
+    font-family: "Poppins", sans-serif;
+    background:rgb(212, 212, 212); 
+justify-self: center;
+align-self: center;
+    height: 100vh;
+    margin: 0;
+  }
+  .container {
+    background:linear-gradient(180deg,#0f1113, #070808);
+    border-radius: 20px;
+    box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+    padding: 30px;
+    width: 350px;
+    text-align: center;
+  }
+  h2 {
+    color: white;
+    margin-bottom: 10px;
+  }
+  .goal {
+    color: #ffffff;
+    font-size: 14px;
+    margin-bottom: 15px;
+  }
+  .progress-bar {
+    height: 20px;
+    width: 100%;
+    background: #e0e0e0;
+    border-radius: 10px;
+    overflow: hidden;
+    margin-bottom: 10px;
+  }
+  .progress {
+    height: 100%;
+    background: #0077b6;
+    width: 0%;
+    transition: width 0.4s ease;
+  }
+  .litres {
+    font-weight: bold;
+    color: #24b600;
+    margin-bottom: 15px;
+  }
+  input, select {
+    width: 80%;
+    padding: 8px;
+    border-radius: 8px;
+    border: 1px solid #ccc;
+    margin-bottom: 10px;
+    outline: none;
+    text-align: center;
+  }
+  button {
+    padding: 10px 20px;
+    border: none;
+    background: rgb(182, 5, 5);
+    color: #fff;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: 0.3s;
+  }
+  button:hover { background: #005f87; }
+  #timer { margin-top: 10px; color: #0077b6; font-weight: 500; }
+
+
+
+    header{
+    display:flex;
+    align-items:center;
+    gap:16px;
+    margin-bottom:20px;
+    justify-content: center;
+  }
+  .logo {
+    margin-top: 100px;
+    font-size: 60px;
+    width:70px;height:86px;border-radius:12px;
+    display:grid;place-items:center;
+    color:#052023;font-weight:800;font-size:18px;
+    margin-bottom: 19px;
+
+  }
+  h1{font-size:20px;margin:0;
+margin-top: 85px;}
+  .sub {color:var(--muted); font-size:13px;margin-top:4px}
+
+
+      .navbar {
+    position: fixed;
+    top: 15px;
+    left: 15px;
+    z-index: 10;
+  }
+
+
+  .sidebar {
+    position: fixed;
+    top: 0;
+    left: -200px;
+    width: 200px;
+    height: 100%;
+    background: linear-gradient(180deg,#0f1113, #070808);
+    color: #fff;
+    display: flex;
+    flex-direction: column;
+    padding-top: 60px;
+    transition: 0.4s;
+    z-index: 9;
+    border-top-right-radius: 20px;
+    border-bottom-right-radius: 20px;
+    box-shadow: 3px 0 10px rgba(0,0,0,0.3);
+     left: 0;
+  }
+
+ 
+
+  .sidebar a {
+    color: white;
+    padding: 15px 25px;
+    text-decoration: none;
+    font-size: 16px;
+    transition: 0.3s;
+  }
+
+  .sidebar a:hover {
+    background: rgba(255,255,255,0.2);
+  }
+
+
+  /* Page transition effect */
+body {
+  opacity: 0;
+  transition: opacity 0.3s ease;
+}
+
+/* When page finishes loading */
+body.fade-in {
+  opacity: 1;
+}
+
+.sidebar a.active {
+  background: rgba(255, 255, 255, 0.25);
+  font-weight: bold;
+  border-left: 4px solid #ff0000;
+}
+
+#interval{
+    margin-top: 18px;
+}
+
+
+#resetBtn{
+   background:rgb(182, 5, 5); margin-top:10px;
+}
+
+#resetBtn:hover{
+    cursor: pointer;
+    background-color: rgb(168, 168, 168);
+    color: black;
+}
+
+/* Hamburger button styling */
+.hamburger {
+  display: none;
+  font-size: 28px;
+  background: black;
+  color: white;
+  padding: 8px 12px;
+  border-radius: 8px;
+  cursor: pointer;
+  box-shadow: 2px 2px 6px rgba(0,0,0,0.3);
+}
+
+/* Mobile view */
+@media (max-width: 768px) {
+  .hamburger {
+    display: block;
+  }
+
+  .sidebar {
+    left: -220px;
+  }
+
+  .sidebar.open {
+    left: 0;
+  }
+}
+
+</style>
+</head>
+<body>
+
+
+      <div class="sidebar" id="sidebar">
+    <a href="index.html"> Home</a>
+    <a href="water.html">Water Reminder</a>
+    <a href="exercise.html">Exercise Reminder</a>
+  </div>
+
+  <div class="navbar">
+  <div class="hamburger" id="hamburger">☰</div>
+</div>
+
+ <header>
+    <div class="logo" style="font-size: 60px;">💧</div>
+    <div>
+      <h1 style="color: black; font-size: 40px;">Drink Karoo</h1>
+      <div class="sub" style=" font-size: 20px; color: rgb(41, 41, 41);">Track & Get Reminder for Drinking Water!</div>
+    </div>
+  </header>
+
+
+
+    
+<div class="container">
+  <h2>💧 Daily Water Tracker</h2>
+  <p class="goal">Goal: <span id="goalDisplay">3</span> L per day</p>
+
+  <div class="progress-bar"><div class="progress" id="progress"></div></div>
+  <div class="litres">
+    <span id="drunk">0.0</span> L / <span id="goal">3.0</span> L
+  </div>
+
+  <select id="amount">
+    <option value="0.25">Drink 250 ml</option>
+    <option value="0.5">Drink 500 ml</option>
+    <option value="1">Drink 1 L</option>
+  </select><br>
+  <button id="addBtn">Add Water</button>
+  <button id="resetBtn">🔄 Reset</button>
+
+
+  <input type="number" id="interval" placeholder="Reminder every (min)" value="60"><br>
+  <button id="startBtn">Start Reminder</button>
+  <button id="stopBtn" style="display:none;">Stop Reminder</button>
+
+  <div id="timer"></div>
+  <audio id="alertSound" src="alarm.mp3" preload="auto"></audio>
+</div>
+
+
+<div style="
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
+    display: flex;
+    gap: 15px;
+    background: rgba(255,255,255,0.1);
+    padding: 10px 15px;
+  
+  ">
+    <a href="https://www.instagram.com/_ananddangi_" target="_blank" 
+       style="text-decoration:none; color:#3c3c3c; font-size:12px;">Instagram</a>
+    <a href="https://www.linkedin.com/in/ananddangi" target="_blank" 
+       style="text-decoration:none; color:#3c3c3c; font-size:12px;">linkedin</a>
+    <a href="https://github.com/ananddangii20" target="_blank" 
+       style="text-decoration:none; color:#3c3c3c; font-size:12px;">Github</a>
+  </div>
+<script>
+let totalDrunk = 0;
+let dailyGoal = 3; // 3 liters default
+let countdown;
+let remainingTime = 0;
+let intervalMinutes = 60;
+
+const progressEl = document.getElementById('progress');
+const drunkEl = document.getElementById('drunk');
+const goalEl = document.getElementById('goal');
+const addBtn = document.getElementById('addBtn');
+const amountSel = document.getElementById('amount');
+const intervalInput = document.getElementById('interval');
+const startBtn = document.getElementById('startBtn');
+const stopBtn = document.getElementById('stopBtn');
+const timerDisplay = document.getElementById('timer');
+const alertSound = document.getElementById('alertSound');
+
+// --- Notification Permission ---
+if ('Notification' in window) Notification.requestPermission();
+
+// --- Load saved progress ---
+const todayKey = new Date().toISOString().slice(0,10);
+const saved = JSON.parse(localStorage.getItem('waterTracker') || '{}');
+if (saved.date === todayKey) {
+  totalDrunk = saved.total || 0;
+}
+updateProgress();
+
+// --- Functions ---
+function updateProgress() {
+  const percent = Math.min((totalDrunk / dailyGoal) * 100, 100);
+  progressEl.style.width = percent + '%';
+  drunkEl.textContent = totalDrunk.toFixed(2);
+  goalEl.textContent = dailyGoal.toFixed(2);
+  localStorage.setItem('waterTracker', JSON.stringify({date: todayKey, total: totalDrunk}));
+}
+
+addBtn.onclick = () => {
+  const amt = parseFloat(amountSel.value);
+  totalDrunk += amt;
+  if (totalDrunk >= dailyGoal) {
+    showNotification("🎉 Yeyeye! Goal reached!", "You've completed your daily water goal!");
+    alertSound.play().catch(()=>{});
+  }
+  updateProgress();
+};
+
+startBtn.onclick = () => {
+  const mins = parseInt(intervalInput.value);
+  if (isNaN(mins) || mins <= 0) return alert("Enter valid minutes!");
+  intervalMinutes = mins;
+  remainingTime = mins * 60;
+  startBtn.style.display = 'none';
+  stopBtn.style.display = 'inline-block';
+  timerDisplay.textContent = '';
+  countdown = setInterval(tick, 1000);
+};
+
+stopBtn.onclick = () => {
+  clearInterval(countdown);
+  timerDisplay.textContent = '';
+  startBtn.style.display = 'inline-block';
+  stopBtn.style.display = 'none';
+    alertSound.pause();
+  alertSound.currentTime = 0;
+};
+
+function tick() {
+  remainingTime--;
+  const m = Math.floor(remainingTime / 60);
+  const s = remainingTime % 60;
+  timerDisplay.textContent = `Next reminder in: ${m}m ${s}s`;
+  if (remainingTime <= 0) {
+    showNotification("💧 Drink Water!", "Stay hydrated — Paani Piloo!");
+    alertSound.play().catch(()=>{});
+    remainingTime = intervalMinutes * 60; // reset timer
+  }
+}
+
+function showNotification(title, body) {
+  if ('Notification' in window && Notification.permission === 'granted') {
+    new Notification(title, { body, icon: 'water.png' });
+  } else {
+    alert(title + " " + body);
+  }
+}
+
+window.addEventListener("load", () => {
+    document.body.classList.add("fade-in");
+  });
+
+
+
+//highlight 
+ const currentPage = window.location.pathname.split("/").pop();
+
+  document.querySelectorAll(".sidebar a").forEach(link => {
+    const linkPage = link.getAttribute("href");
+    if (linkPage === currentPage) {
+      link.classList.add("active");
+    } else {
+      link.classList.remove("active");
+    }
+  });
+
+
+// Reset Button Functionality 
+document.getElementById('resetBtn').addEventListener('click', () => {
+  if (confirm("Reset your daily water progress?")) {
+    totalDrunk = 0; // reset current progress
+    localStorage.removeItem('waterTracker'); // remove saved data
+    updateProgress(); // update UI
+  }
+
+    alertSound.pause();
+  alertSound.currentTime = 0;
+});
+
+
+const hamburger = document.getElementById("hamburger");
+const sidebar = document.getElementById("sidebar");
+
+hamburger.addEventListener("click", () => {
+  sidebar.classList.toggle("open");
+});
+
+</script>
+</body>
+</html>
