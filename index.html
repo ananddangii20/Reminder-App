@@ -3,8 +3,8 @@
 <head>
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width,initial-scale=1" />
-<title>Remind Karo</title>
-<link rel="icon" href="data:;base64,iVBORw0KGgo=">
+<title>Home | Remind Karo</title>
+<link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🔔</text></svg>">
 <style>
   :root{
     --bg:#0f1113;
@@ -115,28 +115,109 @@
     .left{order:2}
     .right{order:1;margin-bottom:12px}
   }
+
+
+
+    .navbar {
+    position: fixed;
+    top: 15px;
+    left: 15px;
+    z-index: 10;
+  }
+
+
+  .sidebar {
+    position: fixed;
+    top: 0;
+    left: -200px;
+    width: 200px;
+    height: 100%;
+    background: linear-gradient(180deg,var(--bg), #070808);
+    color: #fff;
+    display: flex;
+    flex-direction: column;
+    padding-top: 60px;
+    transition: 0.4s;
+    z-index: 9;
+    border-top-right-radius: 20px;
+    border-bottom-right-radius: 20px;
+    box-shadow: 3px 0 10px rgba(0,0,0,0.3);
+     left: 0;
+  }
+
+ 
+
+  .sidebar a {
+    color: white;
+    padding: 15px 25px;
+    text-decoration: none;
+    font-size: 16px;
+    transition: 0.3s;
+  }
+
+  .sidebar a:hover {
+    background: rgba(255,255,255,0.2);
+  }
+
+  /* Hamburger button styling */
+.hamburger {
+  display: none;
+  font-size: 28px;
+  background: var(--bg);
+  color: white;
+  padding: 8px 12px;
+  border-radius: 8px;
+  cursor: pointer;
+  box-shadow: 2px 2px 6px rgba(0,0,0,0.3);
+}
+
+/* Mobile view */
+@media (max-width: 768px) {
+  .hamburger {
+    display: block;
+  }
+
+  .sidebar {
+    left: -220px;
+  }
+
+  .sidebar.open {
+    left: 0;
+  }
+}
+
+
+  /* Page transition effect */
+body {
+  opacity: 0;
+  transition: opacity 0.3s ease;
+}
+
+/* When page finishes loading */
+body.fade-in {
+  opacity: 1;
+}
+
+
+
+.sidebar a.active {
+  background: rgba(255, 255, 255, 0.25);
+  font-weight: bold;
+  border-left: 4px solid #ff0000;
+}
 </style>
 </head>
 <body>
 
-    <script>
-  // SIMPLE LOCAL LOGIN before loading app
-  const authKey = "rk_user_logged_in";
 
-  // if not logged in, show prompt before app appears
-  if(!localStorage.getItem(authKey)){
-    const name = prompt("Enter your name to continue:");
+  <div class="sidebar" id="sidebar">
+    <a href="index.html"> Home</a>
+    <a href="water.html">Water Reminder</a>
+    <a href="exercise.html">Exercise Reminder</a>
+  </div>
+  <!-- Hamburger Button -->
+<div class="hamburger" id="hamburger">☰</div>
 
-    if(name && name.trim() !== ""){
-      localStorage.setItem(authKey, "1"); // mark logged in
-      alert("Welcome " + name.trim());
-    } else {
-      alert("Login required. Reloading...");
-      location.reload();
-    }
-  }
-</script>
- 
 <div class="app">
   <header>
     <div class="logo" style="font-size: 60px;">🔔</div>
@@ -230,8 +311,26 @@
   </div>
 </div>
 
-<audio id="ringtone" src="/alarm.mp3" preload="auto"></audio>
+<audio id="ring" src="alarm.mp3" preload="auto"></audio>
 
+
+  <div style="
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
+    display: flex;
+    gap: 15px;
+    background: rgba(255,255,255,0.1);
+    padding: 10px 15px;
+  
+  ">
+    <a href="https://www.instagram.com/_ananddangi_" target="_blank" 
+       style="text-decoration:none; color:#3c3c3c; font-size:12px;">Instagram</a>
+    <a href="https://www.linkedin.com/in/ananddangi" target="_blank" 
+       style="text-decoration:none; color:#3c3c3c; font-size:12px;">linkedin</a>
+    <a href="https://github.com/ananddangii20" target="_blank" 
+       style="text-decoration:none; color:#3c3c3c; font-size:12px;">Github</a>
+  </div>
 
 <script>
 /*
@@ -240,6 +339,13 @@
   - Checks every second for due reminders
   - Asks Notification permission only on first created reminder
 */
+
+
+ window.addEventListener("load", () => {
+    document.body.classList.add("fade-in");
+  });
+
+
 
 const storageKey = 'rk_reminders_v1';
 let reminders = [];
@@ -315,7 +421,7 @@ function renderList(){
     doneBtn.onclick = ()=> { r.done = !r.done; saveReminders(); renderList(); };
 
     const editBtn = document.createElement('button'); editBtn.className='icon-btn'; editBtn.title='Edit';
-    editBtn.innerHTML = 'Edit ✎';
+    editBtn.innerHTML = ' ✎ Edit';
     editBtn.onclick = ()=> { openEditForm(r.id); };
 
     const delBtn = document.createElement('button'); delBtn.className='icon-btn'; delBtn.title='Delete';
@@ -437,8 +543,8 @@ function checkDue(){
 
 function showPopupFor(r){
 
-    const ring = document.getElementById('ringtone');
-ring.currentTime = 0;   // start from beginning
+    const ring = document.getElementById('ring');
+ring.currentTime = 2;   // start from beginning
 ring.play().catch(()=>{}); // play sound, ignore errors
 
   currentNotifyId = r.id;
@@ -450,7 +556,7 @@ ring.play().catch(()=>{}); // play sound, ignore errors
 }
 
 dismissNotify.onclick = ()=>{
-  const ring = document.getElementById('ringtone'); // <--- get the audio element
+  const ring = document.getElementById('ring'); // <--- get the audio element
   if(currentNotifyId){
     const r = reminders.find(x=>x.id===currentNotifyId);
     if(r) { r.done = true; r.archived = true; }
@@ -467,6 +573,12 @@ dismissNotify.onclick = ()=>{
 
 
 snoozeBtn.onclick = ()=>{
+  const ring = document.getElementById('ring'); // <--- get the audio element
+
+ring.pause();       // stop sound
+    ring.currentTime = 0;
+
+
   if(currentNotifyId){
     const r = reminders.find(x=>x.id===currentNotifyId);
     if(r){
@@ -544,6 +656,27 @@ window.addEventListener('beforeunload', ()=> saveReminders());
   dateInput.value = isoDate;
   timeInput.value = hhmm;
 })();
+
+//highlight 
+ const currentPage = window.location.pathname.split("/").pop();
+
+  document.querySelectorAll(".sidebar a").forEach(link => {
+    const linkPage = link.getAttribute("href");
+    if (linkPage === currentPage) {
+      link.classList.add("active");
+    } else {
+      link.classList.remove("active");
+    }
+  });
+
+
+  const hamburger = document.getElementById("hamburger");
+const sidebar = document.getElementById("sidebar");
+
+hamburger.addEventListener("click", () => {
+  sidebar.classList.toggle("open");
+});
+
 </script>
 </body>
 </html>
